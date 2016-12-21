@@ -2,14 +2,6 @@
  * Created by liz
  * Email: lizhengnacl@163.com
  * Tel: 18686768624
- * Date: 16/12/21
- */
-'use strict';
-
-/**
- * Created by liz
- * Email: lizhengnacl@163.com
- * Tel: 18686768624
  * Date: 16/12/6
  */
 'use strict';
