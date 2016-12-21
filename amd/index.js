@@ -4,6 +4,7 @@
  * Tel: 18686768624
  * Date: 16/12/19
  */
+
 'use strict';
 var fs = require('fs');
 
@@ -30,7 +31,7 @@ function getModule(name) {
     defineCache[name] = module;
     backgroundReadFile(name, function(err, code) {
         currentMod = module;
-        new Function("define", code)(define);
+        new Function('define', code)(define);
     });
     return module;
 }

@@ -26,6 +26,6 @@ function readFile(name){
     return str;
 }
 
-var weekDay = _require("./week-day.js");
+var weekDay = _require('./week-day.js');
 
 console.log(weekDay.name(1));

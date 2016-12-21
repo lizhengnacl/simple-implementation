@@ -6,8 +6,8 @@
  */
 'use strict';
 
-var names = ["Sunday", "Monday", "Tuesday", "Wednesday",
-             "Thursday", "Friday", "Saturday"];
+var names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday',
+    'Thursday', 'Friday', 'Saturday'];
 exports.name = function(number) {
     return names[number];
 };
