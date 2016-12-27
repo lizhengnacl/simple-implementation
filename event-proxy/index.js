@@ -6,61 +6,58 @@
  */
 'use strict';
 
-// eventProxy.trigger('msg', 'end');
-// eventProxy.on('msg', (msg) => {});
-
-const eventProxy = {
-    _on : {},
-    _one: {},
-    on: function(key, fn){
-        if(this._on[key] === undefined){
-            this._on[key] = [];
-        }
-        this._on[key].push(fn);
-    },
-    one: function(key, fn){
-        if(this._one[key] === undefined){
-            this._one[key] = [];
-        }
-        this._one[key].push(fn);
-    },
-    off: function(key){
-        this._on[key] = [];
-        this._one[key] = [];
-    },
-    trigger: function(){
-        let key, args;
-        if(arguments.length === 0){
-            return false;
-        }
-        key = arguments[0];
-        args = Array.prototype.slice.call(arguments, 1);
-        if(this._on[key] !== undefined && this._on[key].length > 0){
-            for(let i in this._on[key]){
-                this._on[key][i].apply(null, args);
+let eventProxy = function(){
+    let onData = {};
+    let oneData = {};
+    return {
+        on: function(k, f){
+            if(onData[k] === undefined){
+                onData[k] = [];
             }
-        }
-        if(this._one[key] !== undefined && this._one[key].length > 0){
-            for(let i in this._one[key]){
-                if(this._one[key][i] !== undefined){
-                    this._one[key][i].apply(null, args);
+            onData[k].push(f);
+        },
+        one: function(k, f){
+            if(oneData[k] === undefined){
+                oneData[k] = [];
+            }
+            oneData[k].push(f);
+        },
+        off: function(k){
+            delete onData[k];
+            delete  oneData[k];
+        },
+        trigger: function(){
+            let k, args;
+            k = arguments[0];
+            args = Array.prototype.slice.call(arguments, 1);
+            if(onData[k] && onData[k].length > 0){
+                for(let prop in onData[k]){
+                    if(onData[k][prop]){
+                        onData[k][prop].apply(null, args);
+                    }
                 }
-                this._one[key][i] = undefined;
+            }
+            if(oneData[k] && oneData[k].length > 0){
+                for(let prop in oneData[k]){
+                    if(oneData[k][prop]){
+                        oneData[k][prop].apply(null, args);
+                    }
+                    delete oneData[k][prop];
+                }
             }
         }
-    }
-};
+    };
+}();
 
-// export default eventProxy;
-eventProxy.on('liz', (msg) => {
-    console.log(msg);
+eventProxy.on('name', function(name){
+    console.log(name);
+});
+eventProxy.one('name', function(name){
+    console.log('name' + ' one');
 });
 
-eventProxy.one('zhu', (msg) => {
-    console.log(msg);
-});
 
-eventProxy.trigger('zhu', 'zhuwenjie');
-eventProxy.trigger('zhu', 'zhuwenjie');
-eventProxy.trigger('liz', 'lizheng');
-eventProxy.trigger('liz', 'lizheng');
+eventProxy.trigger('name', 'liz');
+eventProxy.off('name');
+eventProxy.trigger('name', 'liz');
+eventProxy.trigger('name', 'liz');
