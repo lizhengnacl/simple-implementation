@@ -9,61 +9,64 @@
 var fs = require('fs');
 
 /* 模拟ajax异步获取文件 */
-function backgroundReadFile(name, cb) {
+function readFile(name, cb) {
     /* cb(err, data) */
     fs.readFile(name, cb);
 }
 
-var defineCache = Object.create(null);
-var currentMod = null;
+var moduleCatch = Object.create(null);
+var currentModule = null;
 
-function getModule(name) {
-    if (name in defineCache) {
-        return defineCache[name];
+function getModle(name){
+    if(moduleCatch[name]){
+        return moduleCatch[name];
     }
 
-    var module = {
+    let module = {
         exports: null,
         loaded: false,
-        onLoad: []
+        check: function(){}
     };
 
-    defineCache[name] = module;
-    backgroundReadFile(name, function(err, code) {
-        currentMod = module;
+    moduleCatch[name] = module;
+    readFile(name, function(err, code){
+        currentModule = module;
+        /* 此为触发点 */
         new Function('define', code)(define);
     });
+
     return module;
 }
 
-function define(name, depNames, moduleFunction) {
-    var myMod = currentMod;
-    var deps = depNames.map(getModule);
-    deps.forEach(function(mod) {
-        if(!mod.loaded) {
-            mod.onLoad.push(whenDepsLoaded);
+function define(name, depsName, moduleFunc){
+    let myModule = currentModule;
+    let deps = depsName.map(getModle);
+    deps.forEach(function(m){
+        if(!m.loaded){
+            /* checkDeps 与 deps形成闭包，保证每个子模块处理完成后，检测依赖该子模块的父模块的依赖是否完全加载完成 */
+            m.check = checkDeps;
         }
     });
 
-    // 用于检查是否所有的依赖模块都被成功加载了
-    function whenDepsLoaded() {
-        if(!deps.every(function(m) { return m.loaded; })) {
+    /* 检查依赖的子模块是否完全加载完成 */
+    function checkDeps(){
+        if(!deps.every(function(m){return m.loaded})){
             return;
         }
 
-        var args = deps.map(function(m) { return m.exports; });
-        var exports = moduleFunction.apply(null, args);
-        if (myMod) {
-            myMod.exports = exports;
-            myMod.loaded = true;
-            myMod.onLoad.forEach(function(f) { f(); });
-            myMod.name = name;
+        let args = deps.map(function(m){return m.exports});
+        let exports = moduleFunc.apply(null, args);
+        if(myModule){
+            myModule.exports = exports;
+            myModule.loaded = true;
+            myModule.check();
+            myModule.name = name;
         }
     }
 
-    whenDepsLoaded();
+    checkDeps();
 }
 
-define('index', ['./name.js'], function(name) {
+define('index', ['./name.js'], function(name){
     console.log(name);
 });
