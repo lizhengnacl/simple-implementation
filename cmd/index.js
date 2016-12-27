@@ -6,26 +6,25 @@
  */
 'use strict';
 
-var fs = require('fs');
-
-function _require(name){
-    if(name in _require.cache){
-        return _require.cache(name);
-    }
-    var code = new Function('exports, module', readFile(name));
-    var exports = {}, module = {exports: exports};
-    code(exports, module);
-    _require.cache[name] = module.exports;
-    return module.exports;
-}
-
-_require.cache = Object.create(null);
+'use strict';
+let fs = require('fs');
+let catchModule = {};
 
 function readFile(name){
-    var str = fs.readFileSync(name);
-    return str;
+    return fs.readFileSync(name);
 }
 
-var weekDay = _require('./week-day.js');
+function _require(name){
+    if(catchModule[name]){
+        return catchModule[name];
+    }
+    let exports = {};
+    /* eval Function 将字符串编译为功能代码 */
+    new Function('exports', readFile(name))(exports);
+    catchModule[name] = exports;
+    return exports;
+}
 
-console.log(weekDay.name(1));
+let obj = _require('./week-day.js');
+
+console.log(obj.name(1));
