@@ -1,5 +1,5 @@
-#The simple implementation of some front-end concepts
+# The simple implementation of some front-end concepts
 
-##AMD
-##CMD
-##Event Proxy
+## AMD
+## CMD
+## Event Proxy
